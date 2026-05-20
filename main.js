@@ -178,18 +178,18 @@ function initFAQ() {
         const icon = item.querySelector('.faq-icon');
         
         question.addEventListener('click', () => {
-            const isActive = item.classList.contains('active');
+            const isOpen = item.classList.contains('faq-open');
             
             // Close all others and reset icons
             faqItems.forEach(i => {
-                i.classList.remove('active');
+                i.classList.remove('faq-open');
                 const iIcon = i.querySelector('.faq-icon');
                 if (iIcon) iIcon.innerText = '⊕';
             });
 
-            // Toggle current if it wasn't active
-            if (!isActive) {
-                item.classList.add('active');
+            // Toggle current if it wasn't open
+            if (!isOpen) {
+                item.classList.add('faq-open');
                 if (icon) icon.innerText = '⊖';
             }
         });
