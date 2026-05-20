@@ -28,8 +28,18 @@ function initSecurity() {
     });
 
     // Extra layer to prevent selection/dragging
-    document.addEventListener('selectstart', (e) => e.preventDefault());
-    document.addEventListener('dragstart', (e) => e.preventDefault());
+    const preventAction = (e) => {
+        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+        }
+    };
+    document.addEventListener('selectstart', preventAction);
+    document.addEventListener('dragstart', preventAction);
+    document.addEventListener('mousedown', (e) => {
+        if (e.detail > 1 && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+        }
+    });
 }
 
 // 2. Live Shop Status (7 AM - 10 PM SL Time)
@@ -125,6 +135,18 @@ function initProductFilters() {
 // 6. Page Refresh on Return
 function initPageRefresh() {
     window.addEventListener('pageshow', (event) => {
+        // Remove focus from any element (fixes sticky states on mobile)
+        if (document.activeElement) {
+            document.activeElement.blur();
+        }
+
+        // Reset any stuck animations
+        document.querySelectorAll('.animate-in, .reveal').forEach(el => {
+            el.classList.remove('animate-in', 'reveal');
+            void el.offsetWidth; // Trigger reflow
+            el.classList.add('animate-in', 'reveal');
+        });
+
         if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
             window.location.reload();
         }
