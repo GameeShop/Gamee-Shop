@@ -9,25 +9,30 @@ document.addEventListener('DOMContentLoaded', () => {
     initPageRefresh();
 });
 
-// 1. Theme (Dark Mode) Logic
+// 1. Theme (Time-Based) Logic
 function initTheme() {
-    const updateTheme = (isDark) => {
-        const theme = isDark ? 'dark' : 'light';
+    const updateThemeByTime = () => {
+        // Get SL Time (UTC + 5:30)
+        const now = new Date();
+        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+        const slTime = new Date(utc + (3600000 * 5.5));
+        
+        const hours = slTime.getHours();
+        // Dark Mode from 7 PM (19) to 6 AM
+        const isDarkTime = hours >= 19 || hours < 6;
+        
+        const theme = isDarkTime ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', theme);
         
         const toggleIcon = document.querySelector('.theme-toggle i');
-        if (toggleIcon) toggleIcon.innerHTML = isDark ? '🌙' : '☀️';
+        if (toggleIcon) toggleIcon.innerHTML = isDarkTime ? '🌙' : '☀️';
     };
 
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-    
     // Initial apply
-    updateTheme(systemPrefersDark.matches);
+    updateThemeByTime();
 
-    // Listen for real-time changes
-    systemPrefersDark.addEventListener('change', e => {
-        updateTheme(e.matches);
-    });
+    // Check every 5 minutes
+    setInterval(updateThemeByTime, 300000);
 }
 
 function updateToggleIcon(theme) {
