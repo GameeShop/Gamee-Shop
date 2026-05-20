@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initPageRefresh();
     initSecurity();
     initReveal();
+    initCarousel();
+    initHeroParallax();
+    initBackToTop();
 });
 
 // 0. Security (Prevent Selection & Context Menu)
@@ -44,8 +47,6 @@ function initReveal() {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('active');
-                // Optional: Stop observing after reveal
-                // revealObserver.unobserve(entry.target);
             }
         });
     }, {
@@ -55,7 +56,7 @@ function initReveal() {
 
     revealElements.forEach(el => revealObserver.observe(el));
 
-    // Fallback for elements already in view or if Observer fails
+    // Fallback for elements already in view
     setTimeout(() => {
         revealElements.forEach(el => {
             const rect = el.getBoundingClientRect();
@@ -66,19 +67,85 @@ function initReveal() {
     }, 500);
 }
 
+// 1.5 Carousel Logic
+function initCarousel() {
+    const slides = document.querySelectorAll('.carousel-slide');
+    const dots = document.querySelectorAll('.carousel-dot');
+    if (slides.length === 0) return;
+
+    let currentSlide = 0;
+    let slideInterval;
+
+    const showSlide = (n) => {
+        slides.forEach(s => s.classList.remove('active'));
+        dots.forEach(d => d.classList.remove('active'));
+        
+        currentSlide = (n + slides.length) % slides.length;
+        slides[currentSlide].classList.add('active');
+        dots[currentSlide].classList.add('active');
+    };
+
+    const nextSlide = () => showSlide(currentSlide + 1);
+
+    const startInterval = () => {
+        slideInterval = setInterval(nextSlide, 5000);
+    };
+
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            showSlide(index);
+            clearInterval(slideInterval);
+            startInterval();
+        });
+    });
+
+    startInterval();
+}
+
+// 1.6 Hero Parallax
+function initHeroParallax() {
+    const heroFrame = document.querySelector('.hero-frame');
+    if (!heroFrame) return;
+
+    document.addEventListener('mousemove', (e) => {
+        const x = (e.clientX / window.innerWidth - 0.5) * 15;
+        const y = (e.clientY / window.innerHeight - 0.5) * 15;
+        heroFrame.style.transform = `perspective(1000px) rotateY(${x}deg) rotateX(${-y}deg)`;
+    });
+}
+
+// 1.7 Back to Top
+function initBackToTop() {
+    const btn = document.createElement('button');
+    btn.innerHTML = '↑';
+    btn.className = 'back-to-top';
+    document.body.appendChild(btn);
+
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 400) {
+            btn.classList.add('visible');
+        } else {
+            btn.classList.remove('visible');
+        }
+    });
+
+    btn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
+
 // 2. Live Shop Status (7 AM - 10 PM SL Time)
 function initStatus() {
     const statusContainer = document.querySelector('.shop-status-container');
     if (!statusContainer) return;
 
     const updateStatus = () => {
-        // Get SL Time (UTC + 5:30)
         const now = new Date();
         const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
         const slTime = new Date(utc + (3600000 * 5.5));
         
         const hours = slTime.getHours();
-        const isOpen = hours >= 7 && hours < 22; // 7 AM to 10 PM (22:00)
+        const isOpen = hours >= 7 && hours < 22;
 
         statusContainer.innerHTML = isOpen 
             ? `<span class="status-badge open"><span class="status-dot"></span>Open Now</span>`
@@ -86,7 +153,7 @@ function initStatus() {
     };
 
     updateStatus();
-    setInterval(updateStatus, 60000); // Update every minute
+    setInterval(updateStatus, 60000);
 }
 
 // 3. Scroll Header Logic
@@ -108,10 +175,23 @@ function initFAQ() {
     const faqItems = document.querySelectorAll('.faq-item');
     faqItems.forEach(item => {
         const question = item.querySelector('.faq-question');
+        const icon = item.querySelector('.faq-icon');
+        
         question.addEventListener('click', () => {
             const isActive = item.classList.contains('active');
-            faqItems.forEach(i => i.classList.remove('active'));
-            if (!isActive) item.classList.add('active');
+            
+            // Close all others and reset icons
+            faqItems.forEach(i => {
+                i.classList.remove('active');
+                const iIcon = i.querySelector('.faq-icon');
+                if (iIcon) iIcon.innerText = '⊕';
+            });
+
+            // Toggle current if it wasn't active
+            if (!isActive) {
+                item.classList.add('active');
+                if (icon) icon.innerText = '⊖';
+            }
         });
     });
 }
@@ -159,15 +239,13 @@ function initProductFilters() {
 // 6. Page Refresh on Return
 function initPageRefresh() {
     window.addEventListener('pageshow', (event) => {
-        // Remove focus from any element (fixes sticky states on mobile)
         if (document.activeElement) {
             document.activeElement.blur();
         }
 
-        // Reset any stuck animations
         document.querySelectorAll('.animate-in, .reveal').forEach(el => {
             el.classList.remove('animate-in', 'reveal');
-            void el.offsetWidth; // Trigger reflow
+            void el.offsetWidth;
             el.classList.add('animate-in', 'reveal');
         });
 
