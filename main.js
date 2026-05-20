@@ -7,13 +7,16 @@ document.addEventListener('DOMContentLoaded', () => {
     initProductFilters();
     initPageRefresh();
     initSecurity();
+    initReveal();
 });
 
 // 0. Security (Prevent Selection & Context Menu)
 function initSecurity() {
     // Disable right-click
     document.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
+        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+        }
     }, false);
 
     // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
@@ -27,19 +30,40 @@ function initSecurity() {
         }
     });
 
-    // Extra layer to prevent selection/dragging
-    const preventAction = (e) => {
-        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-            e.preventDefault();
-        }
-    };
-    document.addEventListener('selectstart', preventAction);
-    document.addEventListener('dragstart', preventAction);
-    document.addEventListener('mousedown', (e) => {
-        if (e.detail > 1 && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-            e.preventDefault();
-        }
+    // Extra layer to prevent dragging images
+    document.addEventListener('dragstart', (e) => {
+        if (e.target.tagName === 'IMG') e.preventDefault();
     });
+}
+
+// 1. Reveal Animation Logic
+function initReveal() {
+    const revealElements = document.querySelectorAll('.reveal');
+    
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                // Optional: Stop observing after reveal
+                // revealObserver.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+
+    revealElements.forEach(el => revealObserver.observe(el));
+
+    // Fallback for elements already in view or if Observer fails
+    setTimeout(() => {
+        revealElements.forEach(el => {
+            const rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight) {
+                el.classList.add('active');
+            }
+        });
+    }, 500);
 }
 
 // 2. Live Shop Status (7 AM - 10 PM SL Time)
@@ -54,7 +78,7 @@ function initStatus() {
         const slTime = new Date(utc + (3600000 * 5.5));
         
         const hours = slTime.getHours();
-        const isOpen = hours >= 7 && hours < 22;
+        const isOpen = hours >= 7 && hours < 22; // 7 AM to 10 PM (22:00)
 
         statusContainer.innerHTML = isOpen 
             ? `<span class="status-badge open"><span class="status-dot"></span>Open Now</span>`
