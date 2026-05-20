@@ -1,44 +1,35 @@
 
 // Gamee Shop - Main Interaction Logic
 document.addEventListener('DOMContentLoaded', () => {
-    initTheme();
     initStatus();
     initScroll();
     initFAQ();
     initProductFilters();
     initPageRefresh();
+    initSecurity();
 });
 
-// 1. Theme (Time-Based) Logic
-function initTheme() {
-    const updateThemeByTime = () => {
-        // Get SL Time (UTC + 5:30)
-        const now = new Date();
-        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-        const slTime = new Date(utc + (3600000 * 5.5));
-        
-        const hours = slTime.getHours();
-        // Dark Mode from 7 PM (19) to 6 AM
-        const isDarkTime = hours >= 19 || hours < 6;
-        
-        const theme = isDarkTime ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', theme);
-        
-        const toggleIcon = document.querySelector('.theme-toggle i');
-        if (toggleIcon) toggleIcon.innerHTML = isDarkTime ? '🌙' : '☀️';
-    };
+// 0. Security (Prevent Selection & Context Menu)
+function initSecurity() {
+    // Disable right-click
+    document.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+    }, false);
 
-    // Initial apply
-    updateThemeByTime();
+    // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+    document.addEventListener('keydown', (e) => {
+        if (
+            e.key === 'F12' ||
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
+            (e.ctrlKey && e.key === 'U')
+        ) {
+            e.preventDefault();
+        }
+    });
 
-    // Check every 5 minutes
-    setInterval(updateThemeByTime, 300000);
-}
-
-function updateToggleIcon(theme) {
-    const icon = document.querySelector('.theme-toggle i');
-    if (!icon) return;
-    icon.innerHTML = theme === 'light' ? '🌙' : '☀️';
+    // Extra layer to prevent selection/dragging
+    document.addEventListener('selectstart', (e) => e.preventDefault());
+    document.addEventListener('dragstart', (e) => e.preventDefault());
 }
 
 // 2. Live Shop Status (7 AM - 10 PM SL Time)
