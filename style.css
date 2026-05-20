@@ -646,9 +646,41 @@ main {
   border-radius: 16px; margin-bottom: 1rem; overflow: hidden;
   transition: var(--transition);
 }
-.faq-question { padding: 1.5rem; cursor: pointer; display: flex; justify-content: space-between; font-weight: 700; }
-.faq-answer { padding: 0 1.5rem; max-height: 0; overflow: hidden; transition: var(--transition); opacity: 0; }
-.faq-item.active .faq-answer { padding-bottom: 1.5rem; max-height: 600px; opacity: 1; }
+.faq-question { 
+  padding: 1.5rem; 
+  cursor: pointer; 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+  font-weight: 700; 
+  user-select: none;
+  transition: background 0.3s ease;
+}
+.faq-question:hover {
+  background: rgba(180, 83, 9, 0.05);
+}
+.faq-icon {
+  font-size: 1.4rem;
+  color: var(--gold);
+  transition: transform 0.3s ease;
+}
+.faq-item.active .faq-icon {
+  transform: rotate(180deg);
+}
+.faq-answer { 
+  padding: 0 1.5rem; 
+  max-height: 0; 
+  overflow: hidden; 
+  transition: max-height 0.4s ease-out, opacity 0.4s ease-out, padding 0.4s ease-out; 
+  opacity: 0; 
+  visibility: hidden;
+}
+.faq-item.active .faq-answer { 
+  padding-bottom: 1.5rem; 
+  max-height: 1000px; /* Increased for safety */
+  opacity: 1; 
+  visibility: visible;
+}
 .faq-item.active { border-color: var(--gold); background: var(--bg-soft); }
 
 /* Back to Top */
@@ -837,65 +869,77 @@ main {
   }
 
   .header {
-    padding: 0.8rem 1rem;
+    padding: 0.8rem 5%;
     background: rgba(15, 23, 42, 0.98);
     backdrop-filter: blur(10px);
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+
+  .header.scrolled .brand {
+    display: none;
+  }
+
+  .header.scrolled .nav {
+    width: 100%;
+    justify-content: space-around;
   }
 
   .brand-logo {
-    width: 48px;
-    height: 48px;
+    width: 42px;
+    height: 42px;
   }
 
   .nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: white;
-    padding: 0.8rem 1rem;
+    position: static;
+    background: transparent;
+    padding: 0;
     display: flex;
-    justify-content: space-around;
-    border-top: 1px solid var(--line);
-    z-index: 2000;
-    box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+    gap: 1.2rem;
+    width: auto;
+    border-top: none;
+    box-shadow: none;
+    z-index: auto;
   }
 
   .nav a {
-    color: var(--text);
-    font-size: 0.7rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.85rem;
+    display: block;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: normal;
   }
 
   .nav a::before {
-    font-size: 1.2rem;
-    margin-bottom: 2px;
+    display: none;
   }
 
-  .nav a[href="index.html"]::before { content: "🏠"; }
-  .nav a[href="products.html"]::before { content: "🛍️"; }
-  .nav a[href="about.html"]::before { content: "📖"; }
-  .nav a[href="contact.html"]::before { content: "📞"; }
+  .nav a::after {
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--gold);
+    transition: width 0.3s ease;
+  }
 
-  /* Add icons via CSS or JS for mobile nav if needed, for now just text */
-  .nav a::after { display: none; }
+  .nav a:active::after {
+    width: 100%;
+  }
+
+  .header-actions {
+    display: none;
+  }
 
   main {
-    padding: 0 1.2rem 5rem; /* Space for bottom nav */
+    padding: 0 1.2rem 2rem; /* Reduced bottom padding since nav moved up */
   }
 
   .hero {
-    padding: 3rem 0;
-    display: flex;
-    flex-direction: column-reverse;
-    text-align: center;
-    gap: 2rem;
+    padding-top: 2rem;
   }
 
   .hero h1 {
