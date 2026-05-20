@@ -11,34 +11,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 1. Theme (Dark Mode) Logic
 function initTheme() {
-    const toggle = document.querySelector('.theme-toggle');
-    if (!toggle) return;
-
-    const savedTheme = localStorage.getItem('theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    // Auto-detect system theme if no manual choice exists
-    const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
-    
-    document.documentElement.setAttribute('data-theme', initialTheme);
-    updateToggleIcon(initialTheme);
-
-    toggle.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    const updateTheme = (isDark) => {
+        const theme = isDark ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', theme);
         
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        updateToggleIcon(newTheme);
-    });
+        const toggleIcon = document.querySelector('.theme-toggle i');
+        if (toggleIcon) toggleIcon.innerHTML = isDark ? '🌙' : '☀️';
+    };
 
-    // Listen for system theme changes
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-        if (!localStorage.getItem('theme')) {
-            const autoTheme = e.matches ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', autoTheme);
-            updateToggleIcon(autoTheme);
-        }
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    // Initial apply
+    updateTheme(systemPrefersDark.matches);
+
+    // Listen for real-time changes
+    systemPrefersDark.addEventListener('change', e => {
+        updateTheme(e.matches);
     });
 }
 
