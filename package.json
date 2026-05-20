@@ -1,0 +1,24 @@
+{
+  "name": "gamee-shop-premium-v3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GameeShop/Gamee-Shop.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/GameeShop/Gamee-Shop/issues"
+  },
+  "homepage": "https://github.com/GameeShop/Gamee-Shop#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^25.9.1",
+    "serve": "^14.2.6"
+  }
+}
